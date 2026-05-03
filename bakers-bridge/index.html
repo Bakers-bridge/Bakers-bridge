@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bakers Bridge | Premium Home Marketplace</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description"
+        content="Discover exceptional handcrafted desserts from Chennai's finest home patisseries. Bakers Bridge connects you with elite artisanal bakers.">
+
+
+
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <!-- Design System -->
+    <link rel="stylesheet" href="style.css?v=17">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
+
+    <style>
+        /* Essential Critical CSS only */
+        @keyframes reveal { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Cinematic Ken Burns Effect */
+        @keyframes ken-burns {
+            0% { transform: scale(1) translate(0, 0); }
+            50% { transform: scale(1.1) translate(-1%, -1%); }
+            100% { transform: scale(1) translate(0, 0); }
+        }
+        .animate-ken-burns {
+            animation: ken-burns 30s ease-in-out infinite;
+            will-change: transform;
+        }
+
+        /* Search Decorations */
+        @keyframes inner-shimmer { 
+            0% { transform: translateX(-100%) skewX(-15deg); } 
+            100% { transform: translateX(200%) skewX(-15deg); } 
+        }
+        .animate-inner-shimmer { animation: inner-shimmer 2s infinite linear; }
+        
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.4; transform: scale(1) translateY(-50%); }
+            50% { opacity: 1; transform: scale(1.1) translateY(-50%); }
+        }
+        .animate-pulse-slow { animation: pulse-slow 3s ease-in-out infinite; }
+
+        /* Weather Atmospheric Themes */
+        .theme-sunny { background: linear-gradient(180deg, #FFF9F0 0%, #FFFFFF 100%) !important; }
+        .theme-rainy { background: linear-gradient(180deg, #F0F4FF 0%, #FFFFFF 100%) !important; }
+        .theme-night { background: linear-gradient(180deg, #F5F5F7 0%, #FFFFFF 100%) !important; }
+        .theme-cloudy { background: linear-gradient(180deg, #F7F7F7 0%, #FFFFFF 100%) !important; }
+
+        .reveal { animation: reveal 1s ease forwards; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-float-delayed { animation: float 6s ease-in-out infinite 3s; }
+
+        .artist-card { animation: reveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; opacity: 0; }
+        #festival-track > div { min-width: 280px; max-width: 280px; }
+        .smooth-scroll { scroll-behavior: smooth; }
+        .modal-badge-img { width: 40px; height: 40px; border-radius: 9999px; border: 3px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.1); background: white; object-fit: contain; }
+
+    </style>
+</head>
+
+<body class="smooth-scroll">
+
+    <!-- Manifesto Modal -->
+    <div id="manifesto-modal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-[#2D2926]/95 backdrop-blur-xl p-6">
+        <div class="bg-white w-full max-w-4xl rounded-[40px] shadow-2xl relative overflow-hidden flex flex-col md:flex-row">
+            <button onclick="closeManifesto()" class="absolute top-6 right-6 p-4 text-gray-900 bg-white/80 backdrop-blur-md rounded-full shadow-lg hover:bg-gray-100 transition-all z-50">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div class="grid grid-cols-1 md:grid-cols-2">
+                <div class="bg-[#FAF7F2] p-16 flex flex-col justify-center border-r border-gray-100">
+                    <img src="elite-badge.png.png" class="w-24 h-24 mb-10 rounded-full shadow-lg" alt="Certified Seal">
+                    <h2 class="serif text-5xl font-bold mb-8 leading-tight">The Artisan's <br>Oath</h2>
+                    <p class="text-gray-500 text-sm leading-relaxed italic">"We believe that true baking is a ritual of patience, purity, and passion."</p>
+                </div>
+                <div class="p-16 max-h-[80vh] overflow-y-auto scroll-hide">
+                    <div class="space-y-12">
+                        <div class="flex gap-6">
+                            <span class="text-2xl font-serif text-[#C5A059] opacity-30">01</span>
+                            <div>
+                                <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-900 mb-2">Pure Origin</h4>
+                                <p class="text-[11px] text-gray-500 leading-relaxed uppercase tracking-wider">No synthetic additives. Only verified premium ingredients.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <span class="text-2xl font-serif text-[#C5A059] opacity-30">02</span>
+                            <div>
+                                <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-900 mb-2">Hand-Crafted</h4>
+                                <p class="text-[11px] text-gray-500 leading-relaxed uppercase tracking-wider">Small-batch integrity shaped by artisanal hands.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <span class="text-2xl font-serif text-[#C5A059] opacity-30">03</span>
+                            <div>
+                                <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-900 mb-2">Zero Preservatives</h4>
+                                <p class="text-[11px] text-gray-500 leading-relaxed uppercase tracking-wider">Freshness is non-negotiable. Baked to order, always.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <span class="text-2xl font-serif text-[#C5A059] opacity-30">04</span>
+                            <div>
+                                <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-900 mb-2">Heritage Starters</h4>
+                                <p class="text-[11px] text-gray-500 leading-relaxed uppercase tracking-wider">Using natural cultures and time-honored techniques.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <span class="text-2xl font-serif text-[#C5A059] opacity-30">05</span>
+                            <div>
+                                <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-900 mb-2">Ethical Sourcing</h4>
+                                <p class="text-[11px] text-gray-500 leading-relaxed uppercase tracking-wider">Supporting local producers and fair-trade cooperatives.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <span class="text-2xl font-serif text-[#C5A059] opacity-30">06</span>
+                            <div>
+                                <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-900 mb-2">Hygiene First</h4>
+                                <p class="text-[11px] text-gray-500 leading-relaxed uppercase tracking-wider">Surpassing standards in home-kitchen sanitation.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <span class="text-2xl font-serif text-[#C5A059] opacity-30">07</span>
+                            <div>
+                                <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-900 mb-2">Flavor Integrity</h4>
+                                <p class="text-[11px] text-gray-500 leading-relaxed uppercase tracking-wider">Honoring the natural profile of every ingredient.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <span class="text-2xl font-serif text-[#C5A059] opacity-30">08</span>
+                            <div>
+                                <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-900 mb-2">Sustainable Packaging</h4>
+                                <p class="text-[11px] text-gray-500 leading-relaxed uppercase tracking-wider">Mindful delivery with minimal environmental footprint.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <span class="text-2xl font-serif text-[#C5A059] opacity-30">09</span>
+                            <div>
+                                <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-900 mb-2">Artistic Presentation</h4>
+                                <p class="text-[11px] text-gray-500 leading-relaxed uppercase tracking-wider">Every creation is a visual and sensory masterpiece.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <span class="text-2xl font-serif text-[#C5A059] opacity-30">10</span>
+                            <div>
+                                <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-900 mb-2">Community Trust</h4>
+                                <p class="text-[11px] text-gray-500 leading-relaxed uppercase tracking-wider">Transparent communication between baker and guest.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <span class="text-2xl font-serif text-[#C5A059] opacity-30">11</span>
+                            <div>
+                                <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-900 mb-2">Continuous Mastery</h4>
+                                <p class="text-[11px] text-gray-500 leading-relaxed uppercase tracking-wider">Constant refinement of craft and culinary skill.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <span class="text-2xl font-serif text-[#C5A059] opacity-30">12</span>
+                            <div>
+                                <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-900 mb-2">Ritual of Care</h4>
+                                <p class="text-[11px] text-gray-500 leading-relaxed uppercase tracking-wider">Baking with intentionality and human connection.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy & Terms Modal -->
+    <div id="privacy-modal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-[#2D2926]/95 backdrop-blur-xl p-6">
+        <div class="bg-white w-full max-w-4xl rounded-[40px] shadow-2xl relative overflow-hidden">
+            <button onclick="closePrivacy()" class="absolute top-6 right-6 p-4 text-gray-900 bg-white/80 backdrop-blur-md rounded-full shadow-lg hover:bg-gray-100 transition-all z-50">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div class="flex border-b border-gray-100">
+                <button onclick="switchLegalTab('privacy')" id="tab-btn-privacy" class="flex-1 py-8 text-[10px] font-bold uppercase tracking-[0.3em] border-b-2 border-[#C5A059] text-gray-900 transition-all">Privacy Policy</button>
+                <button onclick="switchLegalTab('terms')" id="tab-btn-terms" class="flex-1 py-8 text-[10px] font-bold uppercase tracking-[0.3em] border-b-2 border-transparent text-gray-400 hover:text-gray-900 transition-all">Terms of Service</button>
+            </div>
+            <div class="p-16 max-h-[70vh] overflow-y-auto scroll-hide">
+                <div id="legal-content-privacy" class="space-y-6">
+                    <h2 class="serif text-3xl font-bold">Privacy Policy</h2>
+                    <p class="text-[11px] text-gray-500">We protect your data with artisanal care.</p>
+                </div>
+                <div id="legal-content-terms" class="hidden space-y-6">
+                    <h2 class="serif text-3xl font-bold">Terms of Service</h2>
+                    <div class="text-[11px] text-gray-500 space-y-4">
+                        <p><strong>1. Artisan Standards:</strong> Every baker on Bakers Bridge must adhere to our Artisan Oath, ensuring small-batch integrity and premium ingredient sourcing.</p>
+                        <p><strong>2. Orders & Delivery:</strong> Bakers Bridge acts as a curation platform. Delivery timelines and product availability are managed by individual artisans.</p>
+                        <p><strong>3. Cancellations:</strong> Due to the handcrafted nature of our products, cancellation policies vary by baker. Please coordinate directly via WhatsApp.</p>
+                        <p><strong>4. Conduct:</strong> We maintain a community of respect. Any misuse of the platform will lead to immediate removal from the collective.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-[150] bg-white/80 backdrop-blur-xl border-b border-gray-50 py-6 md:py-10 px-6 md:px-12 flex justify-between items-center transition-all duration-500">
+        <div class="flex items-center gap-8 md:gap-16">
+            <a href="index.html" class="flex items-center gap-3 md:gap-4 group">
+                <img src="./logo.jpeg" class="h-8 md:h-12 w-auto rounded-xl shadow-sm group-hover:shadow-lg transition-all" alt="Bakers Bridge">
+                <span class="serif text-xl md:text-3xl font-bold tracking-tighter text-gray-900">Bakers Bridge</span>
+            </a>
+            <div class="hidden lg:flex gap-12 text-[10px] font-bold uppercase tracking-[0.4em] text-gray-400">
+                <a href="#boutiques" class="hover:text-[#C5A059] transition-colors">The Guild</a>
+                <a href="#festivals-section" class="hover:text-[#C5A059] transition-colors">Festivals</a>
+                <a href="javascript:openManifesto()" class="hover:text-[#C5A059] transition-colors">The Oath</a>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4 md:gap-8">
+            <a href="admin-login.html" class="hidden md:flex w-12 h-12 items-center justify-center bg-gray-50 rounded-full text-gray-400 hover:bg-[#2D2926] hover:text-white transition-all">
+                <i data-lucide="user" class="w-5 h-5"></i>
+            </a>
+            <!-- Mobile Menu Toggle -->
+            <button class="lg:hidden p-2 text-gray-900" onclick="toggleMobileMenu()">
+                <i data-lucide="menu" id="menu-icon" class="w-6 h-6"></i>
+            </button>
+        </div>
+
+        <div id="mobile-menu" class="fixed inset-0 bg-[#2D2926] z-[250] hidden flex-col items-center justify-center p-8 transition-all duration-500">
+            <button onclick="toggleMobileMenu()" class="absolute top-10 right-8 text-white/50 hover:text-white">
+                <i data-lucide="x" class="w-10 h-10"></i>
+            </button>
+            <div class="flex flex-col gap-12 text-center">
+                <span class="text-[#C5A059] text-[10px] font-bold uppercase tracking-[0.4em] mb-4">Navigations</span>
+                <a href="#boutiques" onclick="toggleMobileMenu()" class="serif text-5xl text-white font-bold hover:text-[#C5A059] transition-colors">The Guild</a>
+                <a href="#festivals-section" onclick="toggleMobileMenu()" class="serif text-5xl text-white font-bold hover:text-[#C5A059] transition-colors">Festivals</a>
+                <a href="javascript:openManifesto()" onclick="toggleMobileMenu()" class="serif text-5xl text-white font-bold hover:text-[#C5A059] transition-colors">The Oath</a>
+                <div class="h-[1px] w-12 bg-white/10 mx-auto mt-4"></div>
+                <a href="admin-login.html" class="text-[#C5A059] text-[12px] font-bold uppercase tracking-[0.4em]">Admin Portal</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Editorial Hero Grid -->
+    <header id="dynamic-header" class="pt-32 md:pt-40 pb-12 md:pb-20 px-4 md:px-8 transition-all duration-[2s] ease-in-out bg-white relative">
+        <div class="max-w-[1400px] mx-auto relative z-10">
+            <!-- Header Utility Row (Aligned) -->
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8 md:mb-16 gap-6 md:gap-0 reveal-up">
+                <div class="flex items-center gap-4 md:gap-6">
+                    <span class="h-[1px] w-8 md:w-12 bg-[#C5A059]/30"></span>
+                    <span class="text-[8px] md:text-[9px] font-bold text-[#C5A059] uppercase tracking-[0.3em] md:tracking-[0.5em]">The Guild of 1% Home Bakers</span>
+                </div>
+                
+                <div class="flex items-center gap-3 md:gap-4 scale-90 md:scale-100">
+                    <div id="weather-display" class="flex items-center gap-3 bg-white/40 backdrop-blur-md border border-white/20 px-5 py-2.5 rounded-full shadow-sm opacity-0 transition-opacity duration-1000">
+                        <i id="weather-icon" data-lucide="sun" class="w-4 h-4 text-[#C5A059]"></i>
+                        <span id="temp-display" class="text-[10px] font-bold text-gray-900 uppercase tracking-widest">32°C</span>
+                        <span class="h-3 w-[1px] bg-gray-300"></span>
+                        <span id="condition-display" class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Chennai</span>
+                    </div>
+                    
+                    <div class="bg-white/40 backdrop-blur-md border border-white/20 px-5 py-2.5 rounded-full shadow-sm flex items-center gap-3">
+                        <i data-lucide="clock" class="w-3.5 h-3.5 text-[#C5A059]"></i>
+                        <span id="header-time" class="text-[10px] font-bold text-gray-900 uppercase tracking-widest text-center">00:00 AM</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hook Headline -->
+            <h1 class="serif text-5xl md:text-[120px] text-gray-900 font-bold leading-tight md:leading-[0.85] mb-12 md:mb-16 reveal-up" style="animation-delay: 0.1s">
+                Find Your<br>Finest Artisans.
+            </h1>
+
+            <!-- Grand Atelier Illustrated Banner -->
+            <div class="relative h-[400px] md:h-[600px] w-full overflow-hidden rounded-[30px] md:rounded-[40px] shadow-2xl reveal-up" style="animation-delay: 0.3s">
+                <img id="main-hero-img" src="./hero1_new.png" 
+                    class="w-full h-full object-cover animate-ken-burns">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20"></div>
+                
+                <!-- Internal Engine Search (Floating) -->
+                <div class="absolute inset-0 flex flex-col items-center justify-center px-6 md:px-8">
+                    <div class="max-w-xl w-full relative">
+                        <div class="relative group">
+                            <i data-lucide="search" class="absolute left-5 md:left-8 top-1/2 -translate-y-1/2 text-white/40 w-4 h-4 md:w-6 md:h-6 group-focus-within:text-[#C5A059] transition-colors"></i>
+                            <input type="text" id="hero-baker-search" oninput="window.handleSearchInput(this.value)"
+                                class="w-full bg-white/5 backdrop-blur-3xl border border-white/10 rounded-full py-4 md:py-8 pl-14 md:pl-20 pr-10 text-white text-[10px] md:text-lg placeholder:text-white/30 placeholder:uppercase placeholder:tracking-[0.2em] focus:outline-none focus:ring-2 focus:ring-[#C5A059]/30 focus:bg-white/10 transition-all shadow-2xl"
+                                placeholder="Search Artisans">
+                            
+                            <!-- Search Suggestions Dropdown -->
+                            <div id="search-suggestions" class="absolute top-[110%] left-0 right-0 bg-white/90 backdrop-blur-2xl rounded-[32px] border border-gray-100 shadow-2xl overflow-hidden hidden z-[200] max-h-[400px] overflow-y-auto">
+                                <!-- Suggestions injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    <!-- Social Proof & Guild Access (Responsive Stack) -->
+                <div class="absolute bottom-6 md:bottom-12 left-0 right-0 px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-0 pointer-events-none">
+                    <div class="flex items-center gap-4 md:gap-8 bg-black/20 backdrop-blur-md border border-white/10 px-6 md:px-10 py-3 md:py-6 rounded-full pointer-events-auto scale-90 md:scale-100">
+                        <div class="flex -space-x-4 mr-2">
+                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white bg-gray-200 overflow-hidden shadow-lg"><img src="./logo.jpeg" class="w-full h-full object-cover"></div>
+                        </div>
+                        <div class="text-left min-w-[100px]">
+                            <span class="block text-[7px] md:text-[8px] font-bold text-white/50 uppercase tracking-widest mb-1">Handcrafted Collection</span>
+                            <span id="hero-item-count" class="block text-lg md:text-3xl font-bold text-white serif tracking-tight">Syncing...</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Guild Pass Trigger (Jump Link) -->
+                    <a href="#plans" class="flex items-center gap-4 md:gap-6 bg-white/10 backdrop-blur-md border border-white/20 px-6 md:px-8 py-3 md:py-4 rounded-full cursor-pointer hover:bg-[#C5A059]/40 hover:scale-105 transition-all group pointer-events-auto scale-90 md:scale-100">
+                        <div class="flex -space-x-3 md:-space-x-4">
+                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white bg-gray-200 overflow-hidden shadow-lg"><img src="./logo.jpeg" class="w-full h-full object-cover"></div>
+                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white bg-[#C5A059] flex items-center justify-center text-[11px] font-bold text-white shadow-lg">
+                                <i data-lucide="crown" class="w-4 h-4 md:w-5 md:h-5 text-white animate-pulse"></i>
+                            </div>
+                        </div>
+                        <div class="text-left">
+                            <span class="block text-[7px] md:text-[8px] font-bold text-white/50 uppercase tracking-widest mb-0.5">Membership</span>
+                            <span class="block text-[8px] md:text-[10px] font-bold text-white uppercase tracking-widest group-hover:text-white transition-colors">Join the Guild <i data-lucide="arrow-down" class="inline-block w-3 h-3 ml-1"></i></span>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- Artists Section -->
+    <section id="boutiques" class="max-w-7xl mx-auto px-8 mt-24 md:mt-40 relative">
+        
+        <!-- Corner Totems (Decorations) -->
+        <div class="absolute -top-12 -left-8 text-[#C5A059]/40 animate-float z-0 pointer-events-none">
+            <i data-lucide="wheat" class="w-20 h-20 stroke-[1px]"></i>
+        </div>
+        <div class="absolute -top-12 -right-8 text-[#C5A059]/40 animate-float-delayed z-0 pointer-events-none">
+            <i data-lucide="chef-hat" class="w-20 h-20 stroke-[1px]"></i>
+        </div>
+        <div class="absolute -bottom-12 -left-8 text-[#C5A059]/40 animate-float-delayed z-0 pointer-events-none">
+            <i data-lucide="flame" class="w-20 h-20 stroke-[1px]"></i>
+        </div>
+        <div class="absolute -bottom-12 -right-8 text-[#C5A059]/40 animate-float z-0 pointer-events-none">
+            <i data-lucide="utensils" class="w-20 h-20 stroke-[1px]"></i>
+        </div>
+
+        <!-- Middle Area Scatter (Decorations) -->
+        <div class="absolute top-[20%] left-[15%] text-[#C5A059]/10 animate-float-delayed z-0 pointer-events-none">
+            <i data-lucide="wheat" class="w-32 h-32 stroke-[0.5px]"></i>
+        </div>
+        <div class="absolute top-[50%] right-[10%] text-[#C5A059]/10 animate-float z-0 pointer-events-none">
+            <i data-lucide="flame" class="w-24 h-24 stroke-[0.5px]"></i>
+        </div>
+        <div class="absolute bottom-[20%] left-[45%] text-[#C5A059]/10 animate-float-delayed z-0 pointer-events-none">
+            <i data-lucide="chef-hat" class="w-40 h-40 stroke-[0.5px]"></i>
+        </div>
+        <div class="absolute top-[70%] left-[5%] text-[#C5A059]/10 animate-float z-0 pointer-events-none">
+            <i data-lucide="utensils" class="w-20 h-20 stroke-[0.5px]"></i>
+        </div>
+
+        <div class="text-center mb-16 relative z-10">
+            <span class="text-[11px] uppercase tracking-[0.4em] font-bold text-[#C5A059] mb-4 block">Boutiques</span>
+            <h2 class="serif text-7xl font-bold text-gray-900 leading-tight mb-12">The Artists Collective</h2>
+        </div>
+
+        <div id="baker-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-12 relative z-20">
+            <!-- Dynamic Bakers will load here -->
+        </div>
+    </section>
+
+    <!-- Festivals Section (Dynamic & Cinematic Reveal) -->
+    <section id="festivals-section" class="hidden py-8 bg-[#FAF7F2] mt-12 md:mt-24">
+        <div class="max-w-[1400px] mx-auto px-8">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+                <div>
+                    <span class="text-[10px] uppercase tracking-[0.4em] font-bold text-[#C5A059] mb-3 block">Curated Events</span>
+                    <h2 class="serif text-5xl font-bold text-gray-900">Seasonal Celebrations</h2>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="document.getElementById('festival-track').scrollBy({left: -400, behavior: 'smooth'})" class="p-5 bg-white rounded-full shadow-sm hover:bg-[#C5A059] hover:text-white transition-all"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+                    <button onclick="document.getElementById('festival-track').scrollBy({left: 400, behavior: 'smooth'})" class="p-5 bg-white rounded-full shadow-sm hover:bg-[#C5A059] hover:text-white transition-all"><i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                </div>
+            </div>
+            
+            <div id="festival-track" class="flex gap-6 overflow-x-auto pb-12 snap-x no-scrollbar">
+                <!-- Compact Festival Cards injected here -->
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Plans Section -->
+    <section id="plans" class="max-w-6xl mx-auto px-8 mt-32 md:mt-56 pb-20">
+        <div class="text-center mb-24 reveal">
+            <span class="text-[#C5A059] text-[11px] font-bold uppercase tracking-[0.3em] mb-4 block">The Experience</span>
+            <h2 class="text-5xl font-bold mb-6">Bridge Memberships</h2>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-10">
+            <!-- Plan 1: Starter Kit -->
+            <div class="plan-card bg-white p-12 rounded-[50px] flex flex-col border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500">
+                <span class="text-[10px] font-bold tracking-[0.4em] uppercase text-[#C5A059] mb-8 block">The Boutique Entry</span>
+                <h3 class="serif text-4xl font-bold mb-4 text-gray-900">Starter Kit</h3>
+                <div class="text-5xl font-bold mb-12 text-gray-900">₹1500<span class="text-xs font-light text-gray-400 uppercase tracking-widest ml-2">/ month</span></div>
+                
+                <ul class="space-y-6 mb-16 flex-1">
+                    <li class="flex items-start gap-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">
+                        <i data-lucide="layout" class="w-4 h-4 text-[#C5A059] flex-shrink-0"></i> Profile Listing
+                    </li>
+                    <li class="flex items-start gap-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">
+                        <i data-lucide="package" class="w-4 h-4 text-[#C5A059] flex-shrink-0"></i> Up to 10 Products
+                    </li>
+                    <li class="flex items-start gap-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-[#C5A059] flex-shrink-0"></i> Verified Badge
+                    </li>
+                    <li class="flex items-start gap-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">
+                        <i data-lucide="help-circle" class="w-4 h-4 text-[#C5A059] flex-shrink-0"></i> Basic Support
+                    </li>
+                </ul>
+                
+                <button class="w-full py-6 border border-gray-900 text-gray-900 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-all">Begin Journey</button>
+            </div>
+
+            <!-- Plan 2: Silver (Preferred) -->
+            <div class="plan-card relative p-12 rounded-[50px] bg-[#2D2926] text-white shadow-2xl md:scale-110 flex flex-col border border-white/5 overflow-hidden">
+                <div class="absolute top-0 right-0 bg-[#C5A059] px-10 py-4 rounded-bl-[30px] text-[10px] font-bold uppercase tracking-[0.2em] text-[#2D2926]">Preferred</div>
+                
+                <span class="text-[10px] font-bold tracking-[0.4em] uppercase text-[#C5A059] mb-8 block">The Growth Accelerator</span>
+                <h3 class="serif text-4xl font-bold mb-4 text-[#C5A059]">Standard</h3>
+                <div class="text-5xl font-bold mb-12">₹3000<span class="text-xs font-light text-white/30 uppercase tracking-widest ml-2">/ month</span></div>
+                
+                <ul class="space-y-6 mb-16 flex-1">
+                    <li class="flex items-start gap-4 text-[11px] font-bold uppercase tracking-widest text-white/70">
+                        <i data-lucide="trending-up" class="w-4 h-4 text-[#C5A059] flex-shrink-0"></i> Priority Search Ranking
+                    </li>
+                    <li class="flex items-start gap-4 text-[11px] font-bold uppercase tracking-widest text-white/70">
+                        <i data-lucide="package-plus" class="w-4 h-4 text-[#C5A059] flex-shrink-0"></i> Up to 20 Products
+                    </li>
+                    <li class="flex items-start gap-4 text-[11px] font-bold uppercase tracking-widest text-white/70">
+                        <i data-lucide="camera" class="w-4 h-4 text-[#C5A059] flex-shrink-0"></i> Content Creation
+                    </li>
+                    <li class="flex items-start gap-4 text-[11px] font-bold uppercase tracking-widest text-white/70">
+                        <i data-lucide="share-2" class="w-4 h-4 text-[#C5A059] flex-shrink-0"></i> Dedicated Promotion
+                    </li>
+                    <li class="flex items-start gap-4 text-[11px] font-bold uppercase tracking-widest text-white/70">
+                        <i data-lucide="zap" class="w-4 h-4 text-[#C5A059] flex-shrink-0"></i> Support Plus
+                    </li>
+                </ul>
+                
+                <button class="w-full py-6 bg-[#C5A059] text-[#2D2926] rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all shadow-xl">Upgrade To Silver</button>
+            </div>
+
+            <!-- Plan 3: Premium -->
+            <div class="plan-card bg-white p-12 rounded-[50px] flex flex-col border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500">
+                <span class="text-[10px] font-bold tracking-[0.4em] uppercase text-[#C5A059] mb-8 block">The Master Brand</span>
+                <h3 class="serif text-4xl font-bold mb-4 text-gray-900">Premium</h3>
+                <div class="text-5xl font-bold mb-12 text-gray-900">₹20k<span class="text-xs font-light text-gray-400 uppercase tracking-widest ml-2">/ month</span></div>
+                
+                <ul class="space-y-6 mb-16 flex-1">
+                    <li class="flex items-start gap-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">
+                        <i data-lucide="clapperboard" class="w-4 h-4 text-[#C5A059] flex-shrink-0"></i> Videography & Reels
+                    </li>
+                    <li class="flex items-start gap-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">
+                        <i data-lucide="focus" class="w-4 h-4 text-[#C5A059] flex-shrink-0"></i> Full Menu Photography
+                    </li>
+                    <li class="flex items-start gap-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4 text-[#C5A059] flex-shrink-0"></i> Full Page Management
+                    </li>
+                    <li class="flex items-start gap-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">
+                        <i data-lucide="users" class="w-4 h-4 text-[#C5A059] flex-shrink-0"></i> Personal Branding
+                    </li>
+                    <li class="flex items-start gap-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">
+                        <i data-lucide="target" class="w-4 h-4 text-[#C5A059] flex-shrink-0"></i> Lead Generation
+                    </li>
+                </ul>
+                
+                <button class="w-full py-6 border border-gray-900 text-gray-900 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-gray-900 hover:text-white transition-all">Claim Prestige</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Manifesto Section -->
+    <section class="py-32 bg-[#FAF7F2] border-t border-gray-100">
+        <div class="max-w-7xl mx-auto px-10">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-16">
+                <div class="col-span-1 lg:col-span-1">
+                    <div class="w-32 h-32 mb-8">
+                        <img src="guild-crest.png.png" class="w-full h-full object-contain rounded-full drop-shadow-[0_10px_30px_rgba(197,160,89,0.3)]" alt="Artisan Guild Crest">
+                    </div>
+                    <h3 class="serif text-3xl font-bold mb-6 text-gray-900">The Bakers Bridge Standard</h3>
+                    <p class="text-gray-500 text-[11px] leading-relaxed mb-8 uppercase tracking-wider font-medium">A 12-point quality mandate for every artisan.</p>
+                    <button onclick="openManifesto()" class="text-[9px] font-bold uppercase tracking-[0.3em] text-[#C5A059] border-b border-[#C5A059]/30 pb-1 hover:text-[#2D2926] hover:border-[#2D2926] transition-all">Full Manifesto</button>
+                </div>
+                <div class="col-span-1 lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-12">
+                    <div class="space-y-4">
+                        <span class="text-[10px] font-bold text-[#C5A059] uppercase tracking-[0.3em] block">01 / Pure Origin</span>
+                        <p class="text-[11px] text-gray-500 leading-relaxed font-medium">No synthetic additives. Only verified premium ingredients.</p>
+                    </div>
+                    <div class="space-y-4">
+                        <span class="text-[10px] font-bold text-[#C5A059] uppercase tracking-[0.3em] block">02 / Hand-Crafted</span>
+                        <p class="text-[11px] text-gray-500 leading-relaxed font-medium">Small-batch integrity shaped by artisanal hands.</p>
+                    </div>
+                    <div class="space-y-4">
+                        <span class="text-[10px] font-bold text-[#C5A059] uppercase tracking-[0.3em] block">03 / Zero Preservatives</span>
+                        <p class="text-[11px] text-gray-500 leading-relaxed font-medium">Freshness is non-negotiable. Baked to order, always.</p>
+                    </div>
+                    <div class="space-y-4">
+                        <span class="text-[10px] font-bold text-[#C5A059] uppercase tracking-[0.3em] block">04 / Heritage Starters</span>
+                        <p class="text-[11px] text-gray-500 leading-relaxed font-medium">Using natural cultures and time-honored techniques.</p>
+                    </div>
+                    <div class="space-y-4">
+                        <span class="text-[10px] font-bold text-[#C5A059] uppercase tracking-[0.3em] block">05 / Ethical Sourcing</span>
+                        <p class="text-[11px] text-gray-500 leading-relaxed font-medium">Supporting local producers and fair-trade cooperatives.</p>
+                    </div>
+                    <div class="space-y-4">
+                        <span class="text-[10px] font-bold text-[#C5A059] uppercase tracking-[0.3em] block">06 / Hygiene First</span>
+                        <p class="text-[11px] text-gray-500 leading-relaxed font-medium">Surpassing standards in home-kitchen sanitation.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-[#2D2926] pt-32 pb-16 px-10">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-16 mb-24">
+            <div class="col-span-1 md:col-span-1">
+                <img src="logo.jpeg" class="h-20 w-auto rounded-xl mb-8 opacity-90 hover:opacity-100 transition-opacity"
+                    alt="Bakers Bridge Logo">
+                <a href="#" class="serif text-3xl font-bold text-[#C5A059]">Bakers Bridge</a>
+                <p class="text-sm text-gray-400 mt-8 leading-relaxed max-w-xs font-light">
+                    Curating the finest home-crafted patisserie experiences in Chennai. Every bite is a story of passion
+                    and precision.
+                </p>
+                <div class="flex gap-6 mt-10">
+                    <a href="https://instagram.com/bakersbridge.in" target="_blank" class="text-gray-400 hover:text-[#C5A059] transition-colors flex items-center gap-2 group">
+                        <i data-lucide="instagram" class="w-6 h-6"></i>
+                        <span class="text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">bakersbridge.in</span>
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-[11px] uppercase tracking-[0.3em] font-bold text-[#C5A059] mb-8">Explore</h4>
+                <ul class="text-sm space-y-5 text-gray-400 font-light">
+                    <li><a href="#boutiques" class="hover:text-white transition-colors">Boutique Directory</a></li>
+                    <li><a href="#festivals-section" class="hover:text-white transition-colors">Seasonal Specials</a></li>
+                    <li><a href="#plans" class="hover:text-white transition-colors">Gift Vouchers</a></li>
+                    <li><a href="javascript:openManifesto()" class="hover:text-white transition-colors">Artisan Stories</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-[11px] uppercase tracking-[0.3em] font-bold text-[#C5A059] mb-8">Support</h4>
+                <ul class="text-sm space-y-5 text-gray-400 font-light">
+                    <li><a href="javascript:openManifesto()" class="hover:text-white transition-colors">Hygiene Standards</a></li>
+                    <li><a href="#boutiques" class="hover:text-white transition-colors">Delivery Areas</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Help Center</a></li>
+                    <li><a href="mailto:bakersbridge.in@gmail.com" class="hover:text-white transition-colors">Contact Us</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-[11px] uppercase tracking-[0.3em] font-bold text-[#C5A059] mb-8">Newsletter</h4>
+                <p class="text-[13px] text-gray-400 mb-6 italic serif">Join the guestlist for secret menu drops and artist spotlights.</p>
+                <div class="relative">
+                    <input type="email" placeholder="Email Address" class="bg-transparent border-b border-gray-600 w-full py-3 text-sm focus:outline-none focus:border-[#C5A059] transition-colors text-white">
+                    <button class="absolute right-0 top-3 text-[#C5A059] uppercase text-[11px] font-bold tracking-[0.2em] hover:text-white transition-colors">Join</button>
+                </div>
+                <div class="mt-10 space-y-3">
+                    <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Contact</p>
+                    <p class="text-sm text-gray-400 font-light">bakersbridge.in@gmail.com</p>
+                    <p class="text-sm text-gray-400 font-light">Chennai, Tamil Nadu</p>
+                </div>
+            </div>
+        </div>
+
+        <div
+            class="max-w-7xl mx-auto pt-12 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-6">
+            <p class="text-[11px] text-gray-500 uppercase tracking-[0.2em]">&copy; 2026 Bakers Bridge. Handcrafted
+                Excellence.</p>
+            <div class="flex gap-8 text-[11px] text-gray-500 uppercase tracking-[0.2em]">
+                <button onclick="openPrivacy('privacy')" class="hover:text-white transition-colors">Privacy Policy</button>
+                <button onclick="openPrivacy('terms')" class="hover:text-white transition-colors">Terms of Service</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Compact Boutique Baker Modal -->
+    <div id="baker-modal" class="modal-overlay">
+        <div class="modal-content !max-w-md !rounded-[32px] !max-h-[85vh] flex flex-col relative p-0 overflow-hidden shadow-2xl bg-white">
+            <!-- Header (Locked at Top) -->
+            <div class="bg-white/95 backdrop-blur-md px-6 py-4 flex items-center justify-between border-b border-gray-50 flex-shrink-0 z-[100]">
+                <button id="close-modal-btn" class="flex items-center gap-3 cursor-pointer text-gray-400 hover:text-gray-900 transition-colors">
+                    <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    <span class="text-[10px] uppercase font-bold tracking-widest">Back</span>
+                </button>
+                
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-full border border-gray-50 p-0.5 overflow-hidden">
+                        <img id="modal-mini-portrait" src="" class="w-full h-full object-cover rounded-full">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrollable Body -->
+            <div class="flex-1 overflow-y-auto smooth-scroll">
+                <div class="p-8">
+                    <!-- Profile Identity -->
+                    <div class="flex flex-col items-center text-center mb-8 pt-4">
+                        <div class="relative mb-5">
+                            <div class="w-32 h-32 rounded-full border-4 border-white shadow-xl overflow-hidden bg-gray-50">
+                                <img id="modal-portrait" src="" class="w-full h-full object-cover">
+                            </div>
+                            <!-- Stable Badge Container -->
+                            <div id="modal-badge-wrapper" class="absolute -bottom-2 -right-2 hidden z-10">
+                                <img src="elite-badge.png.png" class="modal-badge-img">
+                            </div>
+                        </div>
+                        <h2 id="modal-name" class="text-3xl font-bold text-gray-800 serif mb-2">Boutique Name</h2>
+                        <p id="modal-location-tag" class="text-[10px] uppercase tracking-[0.2em] font-bold text-[#C5A059] flex items-center gap-1.5 justify-center">
+                            <i data-lucide="map-pin" class="w-3 h-3"></i> Adyar, Chennai
+                        </p>
+                        <div id="modal-purity" class="flex flex-wrap gap-2 mt-4 justify-center"></div>
+                    </div>
+
+                    <!-- Bio -->
+                    <div class="bg-[#FAF7F2]/50 border border-[#FAF7F2] p-6 rounded-3xl mb-10">
+                        <p id="modal-bio" class="text-sm text-gray-600 leading-relaxed italic text-center font-light">
+                            "Artisanal creations baked with passion."
+                        </p>
+                    </div>
+
+                    <!-- Product Gallery Grid -->
+                    <div class="mt-4 mb-8">
+                        <div id="modal-badges-container" class="flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <div class="mb-12">
+                        <h4 class="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-300 mb-6 text-center">Menu Gallery</h4>
+                        <div id="modal-product-container" class="grid grid-cols-2 gap-5">
+                            <!-- Products injected here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Actions (Locked at Bottom) -->
+            <div class="p-6 bg-white border-t border-gray-50 flex-shrink-0 z-[100]">
+                <button id="whatsapp-checkout-btn" class="w-full bg-[#2D2926] text-white py-5 rounded-2xl font-bold text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:bg-[#C5A059] transition-all active:scale-95 shadow-xl">
+                    Place Order via WhatsApp <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Order Bar (Locked at Bottom) -->
+    <div id="floating-cart-bar" class="hidden fixed bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-lg bg-[#2D2926] text-white p-6 rounded-[32px] shadow-2xl flex items-center justify-between z-[150] animate-slide-up">
+        <div class="flex-1">
+            <p class="text-[9px] uppercase font-bold text-[#C5A059] tracking-widest mb-0.5">Order Total</p>
+            <p id="floating-cart-total" class="text-xl font-bold text-white leading-none">₹0</p>
+        </div>
+        <button id="cart-checkout-btn" onclick="window.checkoutViaWhatsApp()" class="bg-[#C5A059] text-white px-8 py-4 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-white hover:text-[#C5A059] transition-all active:scale-95 flex items-center gap-2">
+            Confirm Selection <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+    </div>
+
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox-modal" class="fixed inset-0 z-[200] hidden bg-[#2D2926]/95 backdrop-blur-2xl flex items-center justify-center p-12 cursor-zoom-out">
+        <img id="lightbox-img" src="" class="max-w-full max-h-full rounded-2xl shadow-2xl animate-zoom">
+    </div>
+
+    <div id="toast" class="fixed bottom-32 left-1/2 -translate-x-1/2 z-[300] bg-[#2D2926] text-white px-8 py-4 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-2xl transition-all translate-y-20 opacity-0 pointer-events-none">
+        Added to Selection
+    </div>
+
+    <script src="config.js?v=18"></script>
+    <script src="utils.js?v=18"></script>
+    <script src="main.js?v=18"></script>
+
+    <script>
+        console.log("🛡️ Bakers Bridge Engine V18 Live");
+        
+        // GLOBAL MODAL ENGINE (HIGH PRIORITY)
+        window.openBakerModal = async (id) => {
+            console.log("Opening Profile:", id);
+            try {
+                const b = window.allBakers.find(x => (x.id || x.ID) == id);
+                if (!b) return;
+                
+                window.currentBaker = b; 
+                if (typeof cart !== 'undefined') { cart = []; updateCartUI(); }
+                
+                const modal = document.getElementById('baker-modal');
+                if (!modal) return;
+                const isAvailable = b.is_available !== false;
+
+                // Populate Fields Safely
+                const nameEl = document.getElementById('modal-name');
+                const bioEl = document.getElementById('modal-bio');
+                const portEl = document.getElementById('modal-portrait');
+                const miniEl = document.getElementById('modal-mini-portrait');
+
+                if (nameEl) nameEl.textContent = b.name || "Master Artisan";
+                if (bioEl) bioEl.textContent = b.about ? `"${b.about}"` : "";
+                if (portEl) portEl.src = b.logo_key || './logo.jpeg';
+                if (miniEl) miniEl.src = b.logo_key || './logo.jpeg';
+                
+                const checkoutBtn = document.getElementById('whatsapp-checkout-btn');
+                if (checkoutBtn) {
+                    if (isAvailable) {
+                        checkoutBtn.classList.remove('opacity-50', 'pointer-events-none');
+                        checkoutBtn.innerHTML = `Place Order via WhatsApp <i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+                    } else {
+                        checkoutBtn.classList.add('opacity-50', 'pointer-events-none');
+                        checkoutBtn.innerHTML = `Fully Booked for Today <i data-lucide="lock" class="w-4 h-4"></i>`;
+                    }
+                }
+
+                const tier = String(b.badge_tier || 'none').toLowerCase();
+                const badgeWrapper = document.getElementById('modal-badge-wrapper');
+                if (badgeWrapper) {
+                    const bImg = badgeWrapper.querySelector('img');
+                    if (tier !== 'none' && bImg) {
+                        badgeWrapper.classList.remove('hidden');
+                        let badgeImg = './elite-badge.png.png';
+                        if (tier === 'bronze') badgeImg = './bronze-badge.png.png';
+                        if (tier === 'silver') badgeImg = './silver-badge.png.png';
+                        bImg.src = badgeImg;
+                    } else { badgeWrapper.classList.add('hidden'); }
+                }
+
+                const purityContainer = document.getElementById('modal-purity');
+                if (purityContainer) {
+                    const pBadges = (window.utils) ? window.utils.safeParse(b.purity_badges) : [];
+                    purityContainer.innerHTML = Array.isArray(pBadges) ? pBadges.map(x => `<span class="text-[10px] px-3 py-1 bg-[#FAF7F2] rounded-full border border-gray-100 text-gray-600 font-medium uppercase tracking-wider">${x}</span>`).join('') : '';
+                }
+                
+                const products = (window.utils) ? window.utils.safeParse(b.products) : [];
+                const container = document.getElementById('modal-product-container');
+                if (container && Array.isArray(products)) {
+                    container.innerHTML = products.map(p => `
+                        <div class="group cursor-pointer">
+                            <div class="aspect-square rounded-2xl overflow-hidden mb-3 relative shadow-sm border border-gray-50">
+                                <img src="${p.image || './logo.jpeg'}" onclick="event.stopPropagation(); window.openLightbox('${p.image || './logo.jpeg'}')" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                ${isAvailable ? `
+                                <button onclick="event.stopPropagation(); window.addToCart('${(p.name || 'Item').replace(/'/g, "\\'")}', ${p.price || 0})" class="absolute bottom-3 right-3 bg-white/90 p-3 rounded-full shadow-lg hover:bg-[#C5A059] hover:text-white transition-all transform active:scale-90"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                                ` : ''}
+                            </div>
+                            <h5 class="font-bold text-[11px] text-gray-800 leading-tight mb-1">${p.name || 'Artisan Item'}</h5>
+                            <p class="font-bold text-[10px] text-[#C5A059]">₹${p.price || 0}</p>
+                        </div>
+                    `).join('');
+                }
+
+                // Bulletproof Reveal
+                modal.style.setProperty('display', 'flex', 'important');
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+
+                // Safety Timeout (Unstuck after 2s if visible but broken)
+                setTimeout(() => { if (!modal.classList.contains('active')) document.body.style.overflow = ''; }, 2000);
+
+                // Add background click to close
+                modal.onclick = (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                        setTimeout(() => { modal.style.display = 'none'; }, 600);
+                        document.body.style.overflow = '';
+                    }
+                };
+
+                if (window.utils) window.utils.refreshIcons();
+            } catch (e) {
+                console.error("Modal Engine Error:", e);
+                document.body.style.overflow = '';
+            }
+        };
+
+        // System Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initializing individual engines if they exist
+            if (typeof initWeatherEngine === 'function') initWeatherEngine();
+            // fetchBakers is already handled in main.js DomContentLoaded, but we force refresh icons here for the static UI
+            if (window.utils && typeof window.utils.refreshIcons === 'function') window.utils.refreshIcons();
+        });
+
+        // Mobile Menu Engine
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                menu.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+            } else {
+                menu.classList.add('hidden');
+                menu.classList.remove('flex');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Weather-Responsive Engine
+        async function initWeatherEngine() {
+            const header = document.getElementById('dynamic-header');
+            const weatherDisplay = document.getElementById('weather-display');
+            const tempDisplay = document.getElementById('temp-display');
+            const condDisplay = document.getElementById('condition-display');
+            const weatherIcon = document.getElementById('weather-icon');
+            const timeDisplay = document.getElementById('header-time');
+
+            // 1. Time Sync
+            function updateTime() {
+                const now = new Date();
+                timeDisplay.textContent = now.toLocaleTimeString('en-IN', { 
+                    hour: '2-digit', 
+                    minute: '2-digit', 
+                    hour12: true 
+                }).toUpperCase();
+            }
+            setInterval(updateTime, 1000);
+            updateTime();
+
+            // 2. Weather Logic (Chennai Mock/Fetch)
+            try {
+                // For production, connect to real API here. Using Mock for instant wow effect.
+                const mockWeather = {
+                    temp: 32,
+                    condition: 'Sunny', // Could be Sunny, Rainy, Cloudy, Night
+                    isNight: new Date().getHours() > 18 || new Date().getHours() < 6
+                };
+
+                // Apply Theme
+                if (mockWeather.isNight) {
+                    header.className = header.className.replace(/bg-\w+/, 'theme-night');
+                    weatherIcon.setAttribute('data-lucide', 'moon');
+                    condDisplay.textContent = "Nightfall";
+                } else if (mockWeather.condition === 'Sunny') {
+                    header.className = header.className.replace(/bg-\w+/, 'theme-sunny');
+                    weatherIcon.setAttribute('data-lucide', 'sun');
+                    condDisplay.textContent = "Clear Sky";
+                } else if (mockWeather.condition === 'Rainy') {
+                    header.className = header.className.replace(/bg-\w+/, 'theme-rainy');
+                    weatherIcon.setAttribute('data-lucide', 'cloud-rain');
+                    condDisplay.textContent = "Monsoon";
+                }
+
+                tempDisplay.textContent = `${mockWeather.temp}°C`;
+                weatherDisplay.classList.remove('opacity-0');
+                if (window.utils) window.utils.refreshIcons();
+
+            } catch (e) {
+                console.error("Weather Engine Error:", e);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initWeatherEngine);
+
+        // Dynamic Placeholder Engine
+        const placeholderPhrases = [
+            "Find the perfect Sourdough...",
+            "Discover Elite Tiered Cakes...",
+            "Browse Artisan Macarons...",
+            "Search Chennai's Finest...",
+            "Find your neighborhood baker..."
+        ];
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const searchInput = document.getElementById('hero-baker-search');
+
+        function typePlaceholder() {
+            if (!searchInput) return;
+            const currentPhrase = placeholderPhrases[phraseIndex];
+            
+            if (isDeleting) {
+                searchInput.placeholder = currentPhrase.substring(0, charIndex--);
+            } else {
+                searchInput.placeholder = currentPhrase.substring(0, charIndex++);
+            }
+
+            if (!isDeleting && charIndex === currentPhrase.length + 1) {
+                isDeleting = true;
+                setTimeout(typePlaceholder, 2000); // Wait at end
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                phraseIndex = (phraseIndex + 1) % placeholderPhrases.length;
+                setTimeout(typePlaceholder, 500);
+            } else {
+                setTimeout(typePlaceholder, isDeleting ? 50 : 100);
+            }
+        }
+        
+        if (searchInput) {
+            typePlaceholder();
+        }
+
+        // Cache Buster for Hero Image
+        window.addEventListener('load', () => {
+            const heroImg = document.getElementById('main-hero-img');
+            if (heroImg) {
+                const currentSrc = heroImg.src;
+                heroImg.src = currentSrc + '?v=' + new Date().getTime();
+            }
+        });
+    </script>
+</body>
+
+</html>

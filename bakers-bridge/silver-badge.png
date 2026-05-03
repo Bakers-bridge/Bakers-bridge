@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!-- saved from url=(0051)file:///C:/Users/bavya/bakers-bridge/get-badge.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Bakers Bridge - Artisan League Assets</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: #FAF7F2; margin: 0; padding: 40px; }
+        .grid { display: grid; grid-cols: 1; gap: 30px; max-width: 1200px; width: 100%; }
+        @media (min-width: 900px) { .grid { grid-template-columns: 1fr 1fr 1fr; } }
+        .card { background: white; padding: 30px; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); text-align: center; border: 1px solid #C5A059; transition: transform 0.3s; }
+        .card:hover { transform: translateY(-10px); }
+        img { width: 180px; height: 180px; margin-bottom: 20px; border-radius: 50%; box-shadow: 0 10px 30px rgba(197,160,89,0.3); }
+        h1 { color: #2D2926; margin-bottom: 10px; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
+        p { color: #8D6E63; margin-bottom: 25px; font-size: 12px; line-height: 1.5; }
+        .btn { background: #C5A059; color: white; padding: 10px 20px; border-radius: 50px; text-decoration: none; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; font-size: 10px; transition: all 0.3s; display: inline-block; }
+        .btn:hover { background: #2D2926; }
+        .warning { background: #FF5252; color: white; padding: 20px; border-radius: 20px; margin-bottom: 40px; font-weight: bold; text-align: center; width: 100%; max-width: 800px; box-shadow: 0 10px 30px rgba(255,82,82,0.3); }
+    </style>
+</head>
+<body>
+    <div class="warning">
+        ⚠️ IMPORTANT INSTRUCTIONS <br> 
+        Right-click each image and choose "Save Image As..." <br>
+        Save with the EXACT names listed below.
+    </div>
+
+    <div class="grid">
+        <!-- Gold Badge -->
+        <div class="card">
+            <h1>🥇 Gold Elite</h1>
+            <p>Save as: <b>elite-badge.png</b></p>
+            <img src="./silver-badge_files/elite_badge_design_1777625097184.png" alt="Gold Badge">
+            <br><div class="btn">Right-Click to Save</div>
+        </div>
+
+        <!-- Silver Badge -->
+        <div class="card">
+            <h1>🥈 Silver Elite</h1>
+            <p>Save as: <b>silver-badge.png</b></p>
+            <img src="./silver-badge_files/silver_badge_exact_design_1777629552730.png" alt="Silver Badge">
+            <br><div class="btn">Right-Click to Save</div>
+        </div>
+
+        <!-- Bronze Badge -->
+        <div class="card">
+            <h1>🥉 Bronze Elite</h1>
+            <p>Save as: <b>bronze-badge.png</b></p>
+            <img src="./silver-badge_files/bronze_badge_exact_design_1777629605843.png" alt="Bronze Badge">
+            <br><div class="btn">Right-Click to Save</div>
+        </div>
+
+        <!-- Guild Crest -->
+        <div class="card">
+            <h1>🛡️ Artisan Crest</h1>
+            <p>Save as: <b>guild-crest.png</b></p>
+            <img src="./silver-badge_files/artisan_guild_crest_1777628909738.png" alt="Guild Crest">
+            <br><div class="btn">Right-Click to Save</div>
+        </div>
+    </div>
+
+
+</body></html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bakers Bridge Admin Portal | Artisanal Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
+    <style>
+        :root { --color-gold: #C5A059; --color-charcoal: #2D2926; --color-cream: #FAF7F2; --color-beige: #D7CCC8; }
+        body { font-family: 'Montserrat', sans-serif; background: #FDFCFB; }
+        .serif { font-family: 'Playfair Display', serif; }
+        .glass-sidebar { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border-right: 1px solid rgba(0,0,0,0.05); }
+        .nav-link { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .nav-link.active { background: var(--color-charcoal); color: white; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(45,41,38,0.4); backdrop-filter: blur(10px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto; border-radius: 40px; }
+    </style>
+</head>
+<body class="flex min-h-screen">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-72 glass-sidebar fixed h-full p-8 flex flex-col z-50">
+        <div class="mb-12">
+            <img src="logo.jpeg" class="h-16 w-auto rounded-xl mb-6 shadow-sm" alt="Logo">
+        </div>
+        
+        <nav class="space-y-3 flex-1">
+            <div onclick="switchTab('bakers-hub')" class="nav-link active flex items-center gap-4 px-6 py-4 text-sm font-semibold" id="link-bakers-hub">
+                <i data-lucide="users" class="w-5 h-5"></i> Bakers Hub
+            </div>
+            <div onclick="switchTab('festivals')" class="nav-link flex items-center gap-4 px-6 py-4 text-sm font-semibold" id="link-festivals">
+                <i data-lucide="sparkles" class="w-5 h-5"></i> Festivals
+            </div>
+            <div onclick="switchTab('leads-manager')" class="nav-link flex items-center gap-4 px-6 py-4 text-sm font-semibold" id="link-leads-manager">
+                <i data-lucide="bar-chart-3" class="w-5 h-5"></i> Lead Manager
+            </div>
+        </nav>
+
+        <div class="mt-auto pt-8 border-t border-gray-100">
+            <a href="index.html" class="flex items-center gap-4 px-6 py-4 text-sm font-semibold text-gray-400 hover:text-gray-900 transition-colors">
+                <i data-lucide="external-link" class="w-5 h-5"></i> View Storefront
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="ml-72 flex-1 p-12">
+        
+        <!-- Tab: Bakers Hub -->
+        <section id="bakers-hub" class="tab-content active">
+            <div class="flex justify-between items-end mb-12">
+                <div>
+                    <span class="text-[10px] uppercase tracking-[0.3em] font-bold text-[#C5A059] mb-3 block">Directory</span>
+                    <h1 class="serif text-5xl font-bold text-gray-900">Artist Collective</h1>
+                </div>
+                <button onclick="openBakerModal()" class="bg-[#2D2926] text-white px-10 py-5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#C5A059] shadow-xl transition-all flex items-center gap-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Add New Artist
+                </button>
+            </div>
+
+            <div id="admin-baker-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        </section>
+
+        <!-- Tab: Festivals -->
+        <section id="festivals" class="tab-content">
+            <div class="flex justify-between items-end mb-12">
+                <div>
+                    <span class="text-[10px] uppercase tracking-[0.3em] font-bold text-[#C5A059] mb-3 block">Events</span>
+                    <h1 class="serif text-5xl font-bold text-gray-900">Festival Showcase</h1>
+                </div>
+                <button onclick="openFestivalModal()" class="bg-[#2D2926] text-white px-10 py-5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#C5A059] shadow-xl transition-all flex items-center gap-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Create New Event
+                </button>
+            </div>
+
+            <div id="admin-festival-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
+        </section>
+
+        <!-- Tab: Lead Manager -->
+        <section id="leads-manager" class="tab-content">
+            <div class="flex justify-between items-end mb-12">
+                <div>
+                    <span class="text-[10px] uppercase tracking-[0.3em] font-bold text-[#C5A059] mb-3 block">Business Intelligence</span>
+                    <h1 class="serif text-5xl font-bold text-gray-900">Sales & Leads</h1>
+                </div>
+                <div class="flex gap-4">
+                    <button onclick="fetchLeads()" class="p-4 bg-gray-100 rounded-full hover:bg-gray-200 transition-all">
+                        <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-[40px] shadow-sm border border-gray-100 overflow-hidden">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-100">
+                            <th class="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-gray-400">Date</th>
+                            <th class="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-gray-400">Baker</th>
+                            <th class="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-gray-400">Total Price</th>
+                            <th class="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-gray-400">Status</th>
+                            <th class="px-8 py-6 text-[10px] font-bold uppercase tracking-widest text-gray-400 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leads-table-body">
+                        <!-- Leads will load here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        </section>
+    </main>
+
+    <!-- Unified Edit/Add Modal -->
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="px-10 py-8 border-b border-gray-50 flex items-center justify-between bg-white sticky top-0 z-10">
+                <h2 id="modal-title" class="serif text-3xl font-bold">Manage Artist</h2>
+                <button onclick="closeModal()" class="p-2 text-gray-400 hover:text-gray-900 transition-colors"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            
+            <form id="edit-form" class="p-10 space-y-12">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div class="space-y-8">
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 block">Display Name</label>
+                            <input type="text" id="baker-name-input" required class="w-full bg-gray-50 border-0 rounded-2xl px-6 py-5 text-sm focus:ring-2 focus:ring-[#C5A059]">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 block">Primary Neighborhood</label>
+                            <select id="baker-loc-input" required class="w-full bg-gray-50 border-0 rounded-2xl px-6 py-5 text-sm focus:ring-2 focus:ring-[#C5A059]">
+                                <option value="T Nagar">T Nagar</option>
+                                <option value="Anna Nagar">Anna Nagar</option>
+                                <option value="Adyar">Adyar</option>
+                                <option value="Mylapore">Mylapore</option>
+                                <option value="Velachery">Velachery</option>
+                                <option value="ECR">ECR</option>
+                                <option value="Sholinganallur">Sholinganallur</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 block">WhatsApp Phone Number (Private)</label>
+                            <input type="text" id="baker-phone-input" placeholder="e.g. 919876543210" class="w-full bg-gray-50 border-0 rounded-2xl px-6 py-5 text-sm focus:ring-2 focus:ring-[#C5A059]">
+                            <p class="text-[9px] text-gray-300 mt-2 italic px-2">Include country code, no spaces or symbols.</p>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 block">Artisanal Story (Bio)</label>
+                            <textarea id="baker-bio-input" rows="4" class="w-full bg-gray-50 border-0 rounded-2xl px-6 py-5 text-sm focus:ring-2 focus:ring-[#C5A059]"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 block">Boutique Logo</label>
+                        <div id="logo-dropzone" class="w-full aspect-square bg-gray-50 rounded-[40px] border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden cursor-pointer hover:border-[#C5A059] transition-all">
+                            <i data-lucide="camera" class="w-12 h-12 text-gray-200 mb-4 placeholder-icon"></i>
+                            <img src="" class="hidden w-full h-full object-cover">
+                        </div>
+                        <input type="file" id="logo-file-input" class="hidden" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-50 pt-12">
+                    <div class="flex items-center justify-between mb-8">
+                        <h4 class="text-[10px] font-bold uppercase tracking-widest text-[#C5A059]">Patisserie Catalog</h4>
+                        <button type="button" onclick="addProductRow()" class="text-[10px] font-bold uppercase tracking-widest bg-gray-100 px-6 py-3 rounded-full hover:bg-[#C5A059]">Add Signature Item</button>
+                    </div>
+                    <div id="product-list" class="space-y-6"></div>
+                </div>
+
+                <div class="space-y-8 py-10 border-t border-gray-50">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-[10px] font-bold uppercase tracking-[0.3em] text-[#C5A059] block">Artisan Purity Badges (Baker Secrets)</label>
+                        <span class="text-[9px] font-bold text-gray-300 uppercase tracking-widest italic">Select all that apply to this atelier</span>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <label class="group relative flex flex-col items-center justify-center p-6 bg-gray-50 rounded-[30px] cursor-pointer hover:bg-white hover:shadow-2xl transition-all duration-500 border border-transparent hover:border-[#C5A059]/20">
+                            <input type="checkbox" value="butter" class="purity-badge-check hidden">
+                            <div class="badge-icon-wrapper w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <span class="text-xl">🧈</span>
+                            </div>
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-gray-900 transition-colors">Premium Butter</span>
+                            <div class="check-dot absolute top-4 right-4 w-2 h-2 rounded-full bg-gray-200 transition-all"></div>
+                        </label>
+                        
+                        <label class="group relative flex flex-col items-center justify-center p-6 bg-gray-50 rounded-[30px] cursor-pointer hover:bg-white hover:shadow-2xl transition-all duration-500 border border-transparent hover:border-[#C5A059]/20">
+                            <input type="checkbox" value="flour" class="purity-badge-check hidden">
+                            <div class="badge-icon-wrapper w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <span class="text-xl">🌾</span>
+                            </div>
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-gray-900 transition-colors">Organic Flour</span>
+                            <div class="check-dot absolute top-4 right-4 w-2 h-2 rounded-full bg-gray-200 transition-all"></div>
+                        </label>
+
+                        <label class="group relative flex flex-col items-center justify-center p-6 bg-gray-50 rounded-[30px] cursor-pointer hover:bg-white hover:shadow-2xl transition-all duration-500 border border-transparent hover:border-[#C5A059]/20">
+                            <input type="checkbox" value="starter" class="purity-badge-check hidden">
+                            <div class="badge-icon-wrapper w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <span class="text-xl">🥖</span>
+                            </div>
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-gray-900 transition-colors">Natural Starter</span>
+                            <div class="check-dot absolute top-4 right-4 w-2 h-2 rounded-full bg-gray-200 transition-all"></div>
+                        </label>
+
+                        <label class="group relative flex flex-col items-center justify-center p-6 bg-gray-50 rounded-[30px] cursor-pointer hover:bg-white hover:shadow-2xl transition-all duration-500 border border-transparent hover:border-[#C5A059]/20">
+                            <input type="checkbox" value="pure" class="purity-badge-check hidden">
+                            <div class="badge-icon-wrapper w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <span class="text-xl">🌿</span>
+                            </div>
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-gray-900 transition-colors">Zero Additives</span>
+                            <div class="check-dot absolute top-4 right-4 w-2 h-2 rounded-full bg-gray-200 transition-all"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <style>
+                    .purity-badge-check:checked + .badge-icon-wrapper { background: #C5A059; color: white; }
+                    .purity-badge-check:checked ~ .check-dot { background: #C5A059; box-shadow: 0 0 10px rgba(197,160,89,0.5); }
+                    .purity-badge-check:checked ~ span { color: #C5A059 !important; }
+                </style>
+
+                <div class="space-y-4 py-8 border-t border-gray-50 flex items-center justify-between">
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-[#C5A059] block mb-1">Artist Status</label>
+                        <p class="text-[9px] text-gray-400 italic">Toggle to 'Fully Booked' to pause orders.</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="baker-available-input" class="sr-only peer" checked>
+                        <div class="w-14 h-8 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-[#C5A059]"></div>
+                    </label>
+                </div>
+
+                <div class="space-y-4 py-8 border-t border-gray-50">
+                    <label class="text-[10px] font-bold uppercase tracking-widest text-[#C5A059] block mb-2">Certification Tier</label>
+                    <select id="baker-tier-input" class="w-full bg-gray-50 border-0 rounded-2xl px-6 py-5 text-sm focus:ring-2 focus:ring-[#C5A059]">
+                        <option value="none">Standard Artisan</option>
+                        <option value="bronze">🥉 Bronze Verified</option>
+                        <option value="silver">🥈 Silver Premium</option>
+                        <option value="gold">🥇 Gold Elite Artist</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-4 pt-12 border-t border-gray-50">
+                    <button type="submit" id="save-baker-btn" class="flex-1 bg-[#2D2926] text-white py-6 rounded-full text-[11px] font-bold uppercase tracking-widest hover:bg-[#C5A059]">Publish Profile</button>
+                    <button type="button" onclick="closeModal()" class="px-12 py-6 border border-gray-200 text-gray-400 rounded-full text-[11px] font-bold uppercase tracking-widest hover:bg-gray-50">Discard</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Festival Modal -->
+    <div id="festival-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="px-10 py-8 border-b border-gray-50 flex items-center justify-between bg-white sticky top-0 z-10">
+                <h2 id="fest-modal-title" class="serif text-3xl font-bold">Design Festival Card</h2>
+                <button onclick="closeFestivalModal()" class="p-2 text-gray-400 hover:text-gray-900 transition-colors"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            
+            <form id="fest-form" class="p-10 space-y-12">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div class="space-y-8">
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 block">Festival Title</label>
+                            <input type="text" id="fest-title-input" required class="w-full bg-gray-50 border-0 rounded-2xl px-6 py-5 text-sm focus:ring-2 focus:ring-[#C5A059]">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 block">Event Date</label>
+                            <input type="text" id="fest-date-input" required class="w-full bg-gray-50 border-0 rounded-2xl px-6 py-5 text-sm focus:ring-2 focus:ring-[#C5A059]">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 block">Event Description</label>
+                            <textarea id="fest-desc-input" rows="3" class="w-full bg-gray-50 border-0 rounded-2xl px-6 py-5 text-sm focus:ring-2 focus:ring-[#C5A059]"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3 block">Event Banner</label>
+                        <div id="fest-dropzone" class="w-full aspect-video bg-gray-50 rounded-[40px] border-2 border-dashed border-gray-200 flex flex-col items-center justify-center overflow-hidden cursor-pointer hover:border-[#C5A059] transition-all">
+                            <i data-lucide="image" class="w-12 h-12 text-gray-200 mb-4 fest-placeholder-icon"></i>
+                            <img src="" class="hidden w-full h-full object-cover">
+                        </div>
+                        <input type="file" id="fest-file-input" class="hidden" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="flex gap-4 pt-12 border-t border-gray-50">
+                    <button type="submit" class="flex-1 bg-[#2D2926] text-white py-6 rounded-full text-[11px] font-bold uppercase tracking-widest hover:bg-[#C5A059]">Publish Event</button>
+                    <button type="button" onclick="closeFestivalModal()" class="px-12 py-6 border border-gray-200 text-gray-400 rounded-full text-[11px] font-bold uppercase tracking-widest hover:bg-gray-50">Discard</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Success Toast -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-[#2D2926] text-white px-8 py-4 rounded-full text-[10px] font-bold uppercase tracking-[0.3em] shadow-2xl opacity-0 translate-y-10 pointer-events-none transition-all duration-500 z-[300]">
+        Action Successful
+    </div>
+
+    <style>
+        #toast.active { opacity: 1; translate: -50% 0; }
+    </style>
+
+    <script src="config.js"></script>
+    <script src="utils.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
